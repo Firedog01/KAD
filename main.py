@@ -21,17 +21,35 @@ data3 = src.get_data("data3.csv")
 data4 = src.get_data("data4.csv")
 
 src.calc_A_and_plot(data1, [
-    (lambda x1: 1),
-    (lambda x1: x1)
+    (lambda x: x)
 ])
 src.calc_A_and_plot(data1, [
-    (lambda x1: x1)
+    (lambda x: x),
+    (lambda x: 1)
+])
+src.calc_A_and_plot(data1, [
+    (lambda x: x * x),
+    (lambda x: np.sin(x)),
+    (lambda x: 1),
 ])
 
-data_x = data1[:, 0]
-data_y = data1[:, 1]
-# print(data_x, data_y)
-print(src.var(data_x), src.cov(data_x, data_x))
-a = src.cov(data_x, data_y) / src.var(data_x)
-print(a)
+src.calc_A_and_plot(data2, [
+    (lambda x: x)
+])
+src.calc_A_and_plot(data2, [
+    (lambda x: x),
+    (lambda x: 1)
+])
+src.calc_A_and_plot(data2, [
+    (lambda x: x * x),
+    (lambda x: np.sin(x)),
+    (lambda x: 1),
+])
+
+# data_x = data1[:, 0]
+# data_y = data1[:, 1]
+# # print(data_x, data_y)
+# print(src.var(data_x), src.cov(data_x, data_x))
+# a = src.cov(data_x, data_y) / src.var(data_x)
+# print(a)
 
