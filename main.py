@@ -20,31 +20,45 @@ data2 = src.get_data("data2.csv")
 data3 = src.get_data("data3.csv")
 data4 = src.get_data("data4.csv")
 
-src.calc_A_and_plot(data1, [
-    (lambda x: x)
-])
-src.calc_A_and_plot(data1, [
-    (lambda x: x),
-    (lambda x: 1)
-])
-src.calc_A_and_plot(data1, [
-    (lambda x: x * x),
-    (lambda x: np.sin(x)),
-    (lambda x: 1),
-])
+model1 = [
+    lambda x: x
+]
+model2 = [
+    lambda x: x,
+    lambda x: 1
+]
+model3 = [
+    lambda x: x ** 2,
+    lambda x: np.sin(x),
+    lambda x: 1,
+]
+src.do_calculations(data1, model1)
+src.do_calculations(data1, model2)
+src.do_calculations(data1, model3)
 
-src.calc_A_and_plot(data2, [
-    (lambda x: x)
-])
-src.calc_A_and_plot(data2, [
-    (lambda x: x),
-    (lambda x: 1)
-])
-src.calc_A_and_plot(data2, [
-    (lambda x: x * x),
-    (lambda x: np.sin(x)),
-    (lambda x: 1),
-])
+src.do_calculations(data2, model1)
+src.do_calculations(data2, model2)
+src.do_calculations(data2, model3)
+
+model4 = [
+    lambda x1, x2: x1,
+    lambda x1, x2: x2,
+    lambda x1, x2: 1,
+]
+model5 = [
+    lambda x1, x2: x1 ** 2,
+    lambda x1, x2: x1 * x2,
+    lambda x1, x2: x2 ** 2,
+    lambda x1, x2: x1,
+    lambda x1, x2: x2,
+    lambda x1, x2: 1
+]
+
+src.do_calculations(data3, model4)
+src.do_calculations(data3, model5)
+
+src.do_calculations(data4, model4)
+src.do_calculations(data4, model5)
 
 # data_x = data1[:, 0]
 # data_y = data1[:, 1]

@@ -1,6 +1,21 @@
 from pandas import read_csv
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
+# import inspect as ins
+
+
+# data is array got from csv file
+# main function
+def do_calculations(data, funcs):
+    regression = find_reg(data, funcs)
+    # TODO calculations on regression
+
+    dim = len(data[0])
+    if dim == 2:
+        plot_2d(data, regression)
+    elif dim == 3:
+        plot_3d(data, regression)
 
 
 def var(data):
@@ -35,101 +50,53 @@ def err_dev(f_points, y_points):
     return max(err)
 
 
-# https://www.urbandictionary.com/define.php?term=F.U.V.
 def fuv():
     pass
 
-
-# data is array got from csv file
-def calc_A_and_plot(data, funcs):
-    A = find_A(data, funcs)
-    dim = len(data[0])
-    # plot_2d(data, get_fx(A, dim, funcs))
-
-    if len(A) == 1 and dim == 2:
-        a = A[0]
-        print("f(x) =", a, "* x")
-        plot_2d(data, lambda x: a * x)
-    if len(A) == 2 and dim == 2:
-        a = A[0]
-        b = A[1]
-        print("f(x) =", a, "* x +", b)
-        plot_2d(data, lambda x: a * x + b)
-    if len(A) == 3 and dim == 2:
-        a = A[0]
-        b = A[1]
-        c = A[2]
-        print("f(x) =", a, "* x ** 2 +", b, "* sin(x) +", c)
-        plot_2d(data, lambda x: a * x ** 2 + b * np.sin(x) + c)
-
-
-# returns array of functions
-def get_fx(A, dim, funcs):
-    n = len(A)
-    ret = []
-    for i in range(n):
-        if dim == 2:
-            ret.append(lambda x: A[i] * funcs[i](x))
-    return ret
-
-
-def find_A_old(X, Y, has_const=True):
-    if has_const:
-        lenx = len(X[:, 0])
-        ones = [1.0] * lenx
-        col_ones = np.array(ones)[np.newaxis].T
-        X = np.concatenate((col_ones, X), axis=1)
-        # print(X)
-    A = np.linalg.inv(X.transpose().dot(X)) \
-        .dot(X.transpose().dot(Y))
-
-    tuple_A = tuple()
-    for row in A:
-        tuple_A = tuple_A + (row[0],)
-    return tuple_A
-
-
-def find_A(data, funcs):
+# ----------- regresja -----------
+def find_reg(data, funcs):
     col_x = get_col(data, "x")
-    len_x = len(col_x[0])  # zakładamy, że są to macierze
+    dim = len(data[0])  # zakładamy, że są to macierze
+    # print(dim, col_x)
     Y = get_col(data, "y")
     X = np.array([])
     for func in funcs:
-        if len_x == 1:
-            temp_arr = []
-            for row in col_x:
+        temp_arr = []
+        for row in col_x:
+            # print(row)
+            if dim == 2:
                 temp_arr.append(func(row[0]))
-            temp_col = np.array(temp_arr)[np.newaxis].T
+            elif dim == 3:
+                temp_arr.append(func(row[0], row[1]))
+        temp_col = np.array(temp_arr)[np.newaxis].T
+        if len(X) == 0:
+            X = temp_col
+        else:
+            X = np.concatenate((X, temp_col), axis=1)
 
-            if len(X) == 0:
-                X = temp_col
-            else:
-                X = np.concatenate((X, temp_col), axis=1)
-        elif len_x == 2:
-            pass  # todo
+    A = np.linalg.inv(X.T.dot(X)).dot(X.T.dot(Y))  # (Xᵀ·X)⁻¹·(Xᵀ·Y)
+    A = A.T[0]
 
-    A = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose().dot(Y))
-
-    tuple_A = tuple()
-    for row in A:
-        tuple_A = tuple_A + (row[0],)
-    return tuple_A
+    regression = []
+    for idx, alpha in enumerate(A):
+        regression.append([alpha, funcs[idx]])
+    return regression
 
 
 def get_col(data, mode):
-    len_d = len(data[0]) - 1
+    dim = len(data[0])
     if mode == "x":
-        if len_d == 1:
+        if dim == 2:
             return np.array(data[:, 0])[np.newaxis].T
-        else:
-            return data[:, :len_d].T
+        elif dim == 3:
+            return data[:, :(dim - 1)]
     elif mode == "y":
-        return np.array(data[:, len_d])[np.newaxis].T
+        return np.array(data[:, (dim - 1)])[np.newaxis].T
     return None
 
 
 # ----------- rysowanie -----------
-def plot_2d(data, f):
+def plot_2d(data, reg):
     for row in data:
         plt.scatter(row[0], row[1], color="black", marker=".", s=10)  # s - size
     x_points = []
@@ -139,22 +106,40 @@ def plot_2d(data, f):
     for point in range(min_val, max_val):
         x = point / 100
         x_points.append(x)
-        y_points.append(f(x))
-        # y = 0
-        # for func in funcs:
-        #     y += func(x)
-        # y_points.append(y)
+        y_points.append(get_val(reg, x))
     plt.plot(x_points, y_points)
     plt.show()
 
 
-def plot_3d(data, label):
-    fig = plt.figure()
+def plot_3d(data, reg):
+    fig = plt.figure(clear=True)
     ax = fig.add_subplot(projection='3d')
-
     for row in data:
-        ax.scatter(row[0], row[1], row[2], label=label, color="blue", marker=".", s=10)
+        ax.scatter(row[0], row[1], row[2], color="blue", marker=".", s=10)
+    x_points = []
+    y_points = []  # z and y swapped for convenience
+    z_points = []
+    min_x = min(data[:, 0])
+    max_x = max(data[:, 0])
+    min_y = min(data[:, 1])
+    max_y = max(data[:, 1])
+
+    (x, y) = np.meshgrid(np.linspace(min_x, max_x + 0.1),
+                         np.linspace(min_y, max_y + 0.1))
+    z = get_val(reg, x, y)
+    ax.plot_surface(x, y, z, cmap=cm.hot)
+    plt.tight_layout()
     plt.show()
+
+
+def get_val(regression, x1, x2=None):
+    ret = 0
+    for cell in regression:
+        if x2 is None:
+            ret += cell[0] * cell[1](x1)
+        else:
+            ret += cell[0] * cell[1](x1, x2)
+    return ret
 
 
 # ----------- wczytywanie -----------
