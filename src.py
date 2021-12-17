@@ -13,22 +13,15 @@ def do_calculations(data, funcs):
     y_pred = get_y_predicted(regression, data)
     y_real = get_col(data, "y")
     print("średni błąd kwadratowy:", avg_quad_dif(y_pred, data))
-    print("największe odchylenie:", max())  # todo
-    print("współczynnik R**2:", get_R_squared(y_real, y_pred))
+    print("największe odchylenie:", max_err_dev(y_real, y_pred)[0])
+    print("współczynnik R**2:", get_R_squared(y_real, y_pred)[0])
 
     dim = len(data[0])
     if dim == 2:
         plot_2d(data, regression)
     elif dim == 3:
         plot_3d(data, regression)
-
-
-"""
-list1 = [1, 2, 3, 4]
-list2 = [8, 7, 6, 5]
-      = [7, 5, 4, 1]
-"""
-
+    print("")
 
 
 def cov(data_x, data_y):
@@ -50,8 +43,10 @@ def cost(array_x, array_y, array_a):
 
 
 # Max z ERR (krotka błędów)
-def err_dev(f_points, y_points):
-    err = f_points - y_points
+def max_err_dev(y_real, y_pred):
+    err = []
+    for i in range(len(y_real)):
+        err.append(abs(y_real[i] - y_pred[i]))
     return max(err)
 
 
@@ -87,15 +82,15 @@ def avg_quad_dif(y_predicted, data):
             val += (y_pred - row_real[1]) ** 2
         elif len(row_real) == 3:
             val += (y_pred - row_real[2]) ** 2
-    return np.sqrt(val / len(data))  # dać pierwiastek czy nie?
+    # return np.sqrt(val / len(data))
+    return val / len(data)
 
 
 
 def get_R_squared(y_real, y_pred):
-    for i in range(len(y_real)):
-        avg = avg(y_real)
-        var_err = var(y_pred, avg)
-        var_e = var(y_real, avg)
+    avg = sum(y_real) / len(y_real)
+    var_err = var(y_pred, avg)
+    var_e = var(y_real, avg)
     return var_err / var_e
 
 
