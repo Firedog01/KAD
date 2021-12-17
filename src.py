@@ -13,14 +13,16 @@ def do_calculations(data, funcs):
     y_pred = get_y_predicted(regression, data)
     y_real = get_col(data, "y")
     print("średni błąd kwadratowy:", avg_quad_dif(y_pred, data))
-    print("największe odchylenie:", max_err_dev(y_real, y_pred)[0])
-    print("współczynnik R**2:", get_R_squared(y_real, y_pred)[0])
+    print("największe odchylenie:", max(get_dif(y_real, y_pred, True)))
+    print("współczynnik R**2:", get_R_squared(y_real, y_pred))
 
     dim = len(data[0])
     if dim == 2:
         plot_2d(data, regression)
     elif dim == 3:
         plot_3d(data, regression)
+    histogram(get_dif(y_real, y_pred), 5)
+
     print("")
 
 
@@ -42,21 +44,7 @@ def cost(array_x, array_y, array_a):
     return np.avg(Z_Y)
 
 
-# Max z ERR (krotka błędów)
-def max_err_dev(y_real, y_pred):
-    err = []
-    for i in range(len(y_real)):
-        err.append(abs(y_real[i] - y_pred[i]))
-    return max(err)
-
-
-def fuv():
-    pass
-
-
-# -----------------------------------
-
-
+# ----------------------------------
 def print_A(regression):
     letter = "a"
     for row in regression:
@@ -86,6 +74,16 @@ def avg_quad_dif(y_predicted, data):
     return val / len(data)
 
 
+def get_dif(y_real, y_pred, absolute=False):
+    err = []
+    for i in range(len(y_real)):
+        if absolute:
+            err.append(abs(y_real[i] - y_pred[i])[0])
+        else:
+            err.append((y_real[i] - y_pred[i])[0])
+    return err
+
+
 
 def get_R_squared(y_real, y_pred):
     avg = sum(y_real) / len(y_real)
@@ -98,7 +96,29 @@ def var(data, avg):
     variance = 0
     for num in data:
         variance += (num - avg) ** 2
-    return variance / len(data)
+    return float(variance / len(data))
+
+
+def get_col(data, mode):
+    dim = len(data[0])
+    if mode == "x":
+        if dim == 2:
+            return np.array(data[:, 0])[np.newaxis].T
+        elif dim == 3:
+            return data[:, :(dim - 1)]
+    elif mode == "y":
+        return np.array(data[:, (dim - 1)])[np.newaxis].T
+    return None
+
+
+def get_val(regression, x1, x2=None):
+    ret = 0
+    for cell in regression:
+        if x2 is None:
+            ret += cell[0] * cell[1](x1)
+        else:
+            ret += cell[0] * cell[1](x1, x2)
+    return ret
 
 
 # ----------- regresja -----------
@@ -127,28 +147,6 @@ def find_reg(data, funcs):
     for idx, alpha in enumerate(A):
         regression.append([alpha, funcs[idx]])
     return regression
-
-
-def get_col(data, mode):
-    dim = len(data[0])
-    if mode == "x":
-        if dim == 2:
-            return np.array(data[:, 0])[np.newaxis].T
-        elif dim == 3:
-            return data[:, :(dim - 1)]
-    elif mode == "y":
-        return np.array(data[:, (dim - 1)])[np.newaxis].T
-    return None
-
-
-def get_val(regression, x1, x2=None):
-    ret = 0
-    for cell in regression:
-        if x2 is None:
-            ret += cell[0] * cell[1](x1)
-        else:
-            ret += cell[0] * cell[1](x1, x2)
-    return ret
 
 
 # ----------- rysowanie -----------
@@ -183,6 +181,27 @@ def plot_3d(data, reg):
     ax.plot_surface(x, y, z, cmap=cm.hot)
     plt.tight_layout()
     plt.show()
+
+
+def histogram(dif, bins):
+    dif = round_dif(dif, bins)
+    plt.hist(dif, bins=bins)
+    plt.show()
+
+
+def round_dif(dif, bins):
+    arr = []
+    max_dif = max(dif)
+    min_dif = min(dif)
+    step = (max_dif - min_dif) / bins
+    cur_floor = min_dif
+    for i in range(bins):
+        for d in dif:
+            if cur_floor <= d < (cur_floor + step):
+                arr.append(cur_floor + step)
+
+        cur_floor += step
+    return arr
 
 
 # ----------- wczytywanie -----------
