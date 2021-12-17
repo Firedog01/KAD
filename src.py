@@ -9,7 +9,12 @@ from matplotlib import cm
 # main function
 def do_calculations(data, funcs):
     regression = find_reg(data, funcs)
-    # TODO calculations on regression
+    print_A(regression)
+    y_pred = get_y_predicted(regression, data)
+    y_real = get_col(data, "y")
+    print("średni błąd kwadratowy:", avg_quad_dif(y_pred, data))
+    print("największe odchylenie:", max())  # todo
+    print("współczynnik R**2:", get_R_squared(y_real, y_pred))
 
     dim = len(data[0])
     if dim == 2:
@@ -18,12 +23,12 @@ def do_calculations(data, funcs):
         plot_3d(data, regression)
 
 
-def var(data):
-    avg = np.average(data)
-    variance = 0
-    for num in data:
-        variance += (num - avg) ** 2
-    return variance / len(data)
+"""
+list1 = [1, 2, 3, 4]
+list2 = [8, 7, 6, 5]
+      = [7, 5, 4, 1]
+"""
+
 
 
 def cov(data_x, data_y):
@@ -53,17 +58,63 @@ def err_dev(f_points, y_points):
 def fuv():
     pass
 
+
+# -----------------------------------
+
+
+def print_A(regression):
+    letter = "a"
+    for row in regression:
+        print(letter, "=", row[0])
+        letter = chr(ord(letter) + 1)
+
+
+def get_y_predicted(regression, data):
+    y_predicted = []
+    for row in data:
+        if len(row) == 2:
+            y_predicted.append(get_val(regression, row[0]))
+        elif len(row) == 3:
+            y_predicted.append(get_val(regression, row[0], row[1]))
+    return y_predicted
+
+
+def avg_quad_dif(y_predicted, data):
+    val = 0
+    for idx, row_real in enumerate(data):
+        y_pred = y_predicted[idx]
+        if len(row_real) == 2:
+            val += (y_pred - row_real[1]) ** 2
+        elif len(row_real) == 3:
+            val += (y_pred - row_real[2]) ** 2
+    return np.sqrt(val / len(data))  # dać pierwiastek czy nie?
+
+
+
+def get_R_squared(y_real, y_pred):
+    for i in range(len(y_real)):
+        avg = avg(y_real)
+        var_err = var(y_pred, avg)
+        var_e = var(y_real, avg)
+    return var_err / var_e
+
+
+def var(data, avg):
+    variance = 0
+    for num in data:
+        variance += (num - avg) ** 2
+    return variance / len(data)
+
+
 # ----------- regresja -----------
 def find_reg(data, funcs):
     col_x = get_col(data, "x")
     dim = len(data[0])  # zakładamy, że są to macierze
-    # print(dim, col_x)
     Y = get_col(data, "y")
     X = np.array([])
     for func in funcs:
         temp_arr = []
         for row in col_x:
-            # print(row)
             if dim == 2:
                 temp_arr.append(func(row[0]))
             elif dim == 3:
@@ -95,6 +146,16 @@ def get_col(data, mode):
     return None
 
 
+def get_val(regression, x1, x2=None):
+    ret = 0
+    for cell in regression:
+        if x2 is None:
+            ret += cell[0] * cell[1](x1)
+        else:
+            ret += cell[0] * cell[1](x1, x2)
+    return ret
+
+
 # ----------- rysowanie -----------
 def plot_2d(data, reg):
     for row in data:
@@ -116,9 +177,6 @@ def plot_3d(data, reg):
     ax = fig.add_subplot(projection='3d')
     for row in data:
         ax.scatter(row[0], row[1], row[2], color="blue", marker=".", s=10)
-    x_points = []
-    y_points = []  # z and y swapped for convenience
-    z_points = []
     min_x = min(data[:, 0])
     max_x = max(data[:, 0])
     min_y = min(data[:, 1])
@@ -130,16 +188,6 @@ def plot_3d(data, reg):
     ax.plot_surface(x, y, z, cmap=cm.hot)
     plt.tight_layout()
     plt.show()
-
-
-def get_val(regression, x1, x2=None):
-    ret = 0
-    for cell in regression:
-        if x2 is None:
-            ret += cell[0] * cell[1](x1)
-        else:
-            ret += cell[0] * cell[1](x1, x2)
-    return ret
 
 
 # ----------- wczytywanie -----------
