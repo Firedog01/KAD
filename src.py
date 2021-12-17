@@ -21,7 +21,7 @@ def do_calculations(data, funcs):
         plot_2d(data, regression)
     elif dim == 3:
         plot_3d(data, regression)
-    histogram(get_dif(y_real, y_pred), 5)
+    histogram(get_dif(y_real, y_pred), 10)
 
     print("")
 
@@ -184,24 +184,8 @@ def plot_3d(data, reg):
 
 
 def histogram(dif, bins):
-    dif = round_dif(dif, bins)
     plt.hist(dif, bins=bins)
     plt.show()
-
-
-def round_dif(dif, bins):
-    arr = []
-    max_dif = max(dif)
-    min_dif = min(dif)
-    step = (max_dif - min_dif) / bins
-    cur_floor = min_dif
-    for i in range(bins):
-        for d in dif:
-            if cur_floor <= d < (cur_floor + step):
-                arr.append(cur_floor + step)
-
-        cur_floor += step
-    return arr
 
 
 # ----------- wczytywanie -----------
