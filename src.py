@@ -10,16 +10,13 @@ import test
 def do_calculations(data, funcs):
     regression = find_reg(data, funcs)
     print_A(regression)
-    # print(data)
     y_pred = get_y_predicted(regression, data)
     y_real = get_col(data, "y")
-    # print(y_pred)
     print("średni błąd kwadratowy:", avg_quad_dif(y_pred, data))
     print("największe odchylenie:", max(get_dif(y_real, y_pred, True)))
     print("współczynnik R**2:", get_R_squared(y_real, y_pred))
 
     dim = len(data[0])
-    # print(dim)
     if dim == 2:
         plot_2d(data, regression)
     elif dim == 3:
