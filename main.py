@@ -34,17 +34,17 @@ model3 = [
 ]
 print("data1 f(X) = a * X")
 src.do_calculations(data1, model1)
-print("data1 f(X) = a * X + b")
-src.do_calculations(data1, model2)
-print("data1 f(X) = a * X**2 + b * sin(X) + c")
-src.do_calculations(data1, model3)
-
+# print("data1 f(X) = a * X + b")
+# src.do_calculations(data1, model2)
+# print("data1 f(X) = a * X**2 + b * sin(X) + c")
+# src.do_calculations(data1, model3)
+#
 print("data2 f(X) = a * X")
 src.do_calculations(data2, model1)
-print("data2 f(X) = a * X + b")
-src.do_calculations(data2, model2)
-print("data2 f(X) = a * X**2 + b * sin(X) + c")
-src.do_calculations(data2, model3)
+# print("data2 f(X) = a * X + b")
+# src.do_calculations(data2, model2)
+# print("data2 f(X) = a * X**2 + b * sin(X) + c")
+# src.do_calculations(data2, model3)
 
 model4 = [
     lambda x1, x2: x1,
