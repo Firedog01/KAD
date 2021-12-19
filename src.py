@@ -2,6 +2,7 @@ from pandas import read_csv
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
+import test
 
 
 # data is array got from csv file
@@ -24,7 +25,8 @@ def do_calculations(data, funcs):
     elif dim == 3:
         plot_3d(data, regression)
     histogram(get_dif(y_real, y_pred), 10)
-
+    print("test------------")
+    test.chi2normality_describe(get_dif(y_real, y_pred))
     print("")
 
 
