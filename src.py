@@ -10,6 +10,7 @@ import test
 def do_calculations(data, funcs):
     regression = find_reg(data, funcs)
     print_A(regression)
+    
     y_pred = get_y_predicted(regression, data)
     y_real = get_col(data, "y")
     print("średni błąd kwadratowy:", avg_quad_dif(y_pred, data))
@@ -18,7 +19,8 @@ def do_calculations(data, funcs):
 
     dim = len(data[0])
     if dim == 2:
-        plot_2d(data, regression)
+        plot_2d(data, reg)
+        hist_2d(data, reg)
     elif dim == 3:
         plot_3d(data, regression)
     histogram(get_dif(y_real, y_pred), 10)
@@ -105,6 +107,7 @@ def get_R_squared(y_real, y_pred):
     # print(var_err, var_e)
     return var_err / var_e
 
+    print("-------------------------")
 
 # ----------- regresja -----------
 def find_reg(data, funcs):
@@ -134,6 +137,19 @@ def find_reg(data, funcs):
     return regression
 
 
+def get_col(data, mode):
+    dim = len(data[0])
+    if mode == "x":
+        if dim == 2:
+            return np.array(data[:, 0])[np.newaxis].T
+        elif dim == 3:
+            return data[:, :(dim - 1)]
+    elif mode == "y":
+        return np.array(data[:, (dim - 1)])[np.newaxis].T
+    return None
+    
+
+
 # ----------- rysowanie -----------
 def plot_2d(data, reg):
     for row in data:
@@ -148,6 +164,12 @@ def plot_2d(data, reg):
         y_points.append(get_val(reg, x))
     plt.plot(x_points, y_points)
     plt.show()
+
+
+def hist_2d(data, reg):
+    diff = []
+    for row in data:
+        diff.append(row[1] - get_val(reg, row[0]))
 
 
 def plot_3d(data, reg):
@@ -171,6 +193,24 @@ def plot_3d(data, reg):
 def histogram(dif, bins):
     plt.hist(dif, bins=bins)
     plt.show()
+
+
+def get_val(regression, x1, x2=None):
+    ret = 0
+    for row in regression:
+        if x2 is None:
+            ret += row[0] * row[1](x1)
+        else:
+            ret += row[0] * row[1](x1, x2)
+    return ret
+
+
+def group_vals(arr, dens=0.02):
+    ret_arr = []
+    max_val = max(arr)
+    min_val = min(arr)
+    for cell in arr:
+        pass
 
 
 # ----------- wczytywanie -----------
