@@ -44,7 +44,7 @@ data_options = {
 model123_options = {
     1: 'f(X) = a * X',
     2: 'f(X) = a * X + b',
-    3: 'a * X**2 + b * sin(X) + c',
+    3: 'f(X) = a * X**2 + b * sin(X) + c',
 }
 
 model45_options = {

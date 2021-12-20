@@ -10,24 +10,26 @@ import test
 def do_calculations(data, funcs):
     regression = find_reg(data, funcs)
     print_A(regression)
-    
+
     y_pred = get_y_predicted(regression, data)
     y_real = get_col(data, "y")
     print("średni błąd kwadratowy:", avg_quad_dif(y_pred, data))
     print("największe odchylenie:", max(get_dif(y_real, y_pred, True)))
     print("współczynnik R**2:", get_R_squared(y_real, y_pred))
-
-    dim = len(data[0])
-    if dim == 2:
-        plot_2d(data, reg)
-        hist_2d(data, reg)
-    elif dim == 3:
-        plot_3d(data, regression)
-    histogram(get_dif(y_real, y_pred), 10)
     print("test------------")
     test.chi2normality_describe(get_dif(y_real, y_pred))
     print("")
 
+    # wykres
+    dim = len(data[0])
+    if dim == 2:
+        plot_2d(data, regression)
+    elif dim == 3:
+        plot_3d(data, regression)
+    # histogram
+    plt.hist(get_dif(y_real, y_pred), bins=10)
+    plt.show()
+    
 
 # ----------- różne -----------
 def print_A(regression):
@@ -166,12 +168,6 @@ def plot_2d(data, reg):
     plt.show()
 
 
-def hist_2d(data, reg):
-    diff = []
-    for row in data:
-        diff.append(row[1] - get_val(reg, row[0]))
-
-
 def plot_3d(data, reg):
     fig = plt.figure(clear=True)
     ax = fig.add_subplot(projection='3d')
@@ -187,12 +183,7 @@ def plot_3d(data, reg):
     z = get_val(reg, x, y)
     ax.plot_surface(x, y, z, cmap=cm.hot)
     plt.tight_layout()
-    plt.show()
-
-
-def histogram(dif, bins):
-    plt.hist(dif, bins=bins)
-    plt.show()
+    plt.show()    
 
 
 def get_val(regression, x1, x2=None):
