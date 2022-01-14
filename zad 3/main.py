@@ -17,14 +17,16 @@ class ඞ:
 if __name__ == "__main__":
     # data_0 = generate_data((0, 0), 2, 200)
     #
-    # data_1 = generate_data((-3, 0), 1, 100)
-    # data_1.append(generate_data((3, 0), 1, 100))
-    # random.shuffle(data_1)
+    data_1 = generate_data((-3, 0), 1, 100)
+    data_12 = generate_data((3, 0), 1, 100)
+    for row in data_12:
+        data_1.append(row)
+    random.shuffle(data_1)
+    print(data_1)
+    # reader = read_csv("test/test_data.csv", header=None)
+    # data_test = reader.values.tolist()
 
-    reader = read_csv("test/test_data.csv", header=None)
-    data_test = reader.values.tolist()
-
-    k.commit_kohonen(data_test)
+    k.commit_kohonen(data_1)
 
 """
 sources:

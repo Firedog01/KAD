@@ -6,7 +6,6 @@ import random
 import imageio
 import os
 
-
 """
 http://galaxy.agh.edu.pl/~vlsi/AI/koho_t/
 https://gdudek.el.pcz.pl/files/SI/SI_wyklad7.pdf
@@ -16,18 +15,21 @@ http://zsi.tech.us.edu.pl/~nowak/wi/som.pdf
 
 N_NEURONS = 5
 N_ITERATIONS = 50
-LAMBDA = 3  # ???
+LAMBDA = 4  # ???
 RANDOM_DIST_RADIUS = 5
 
-"""
-winner takes most
-"""
-def commit_kohonen(data: list):
 
+def commit_kohonen(data: list):
+    """
+    winner takes most
+    """
+    remove_old_images()
     nodes = generate_nodes(5)
     data_loop = cycle(data)
     n_iter = 1
     eta = 1  # współczynnik nauki
+    lbda = LAMBDA
+    eta_diff = eta / N_ITERATIONS
     save_frame(0, data, nodes)
     for point in data_loop:
         if n_iter > N_ITERATIONS:
@@ -37,15 +39,17 @@ def commit_kohonen(data: list):
         nodes = move_nodes(nodes, point, w, eta)
         save_frame(n_iter, data, nodes)
         n_iter -=- 1
-        eta /= 2
+        eta /= 1.4
+        # eta -= eta_diff
+        lbda /= 1.7
 
     make_animation()
 
 
-"""
-generates given number of nodes 
-"""
 def generate_nodes(n_nodes: int):
+    """
+    generates given number of nodes
+    """
     nodes = []
     for i in range(n_nodes):
         x = (random.random() - 0.5) * RANDOM_DIST_RADIUS * 2
@@ -54,20 +58,20 @@ def generate_nodes(n_nodes: int):
     return nodes
 
 
-"""
-for one point moves all according to some wzory
-"""
 def move_nodes(nodes: list, x: tuple, w: tuple, eta: int):
+    """
+    for one point moves all according to some wzory
+    """
     ret_nodes = []
     for i in nodes:
         ret_nodes.append(i + eta * gauss_proximity(i, w) * np.subtract(x, i))
     return ret_nodes
 
 
-"""
-G(i, x) = exp( -d^2(i, w) / (2 lambda^2) )
-"""
 def gauss_proximity(i: tuple, w: tuple):
+    """
+    G(i, x) = exp( -d^2(i, w) / (2 lambda^2) )
+    """
     return np.exp(
         -(math.dist(i, w)**2)
         /
@@ -75,10 +79,10 @@ def gauss_proximity(i: tuple, w: tuple):
     )
 
 
-"""
-find the winner
-"""
 def find_winner(x: tuple, neurons: list) -> tuple:
+    """
+    find the winner
+    """
     d = math.dist(x, neurons[0])
     ret_tuple = neurons[0]
 
@@ -90,10 +94,13 @@ def find_winner(x: tuple, neurons: list) -> tuple:
     return ret_tuple
 
 
-"""
-saves frame for current data and neurons with name i.png
-"""
+""" ------------------------ """
+
+
 def save_frame(i: int, data: list, neurons: list):
+    """
+    saves frame for current data and neurons with name i.png
+    """
     # filesize 500x500
     fig = plt.figure(figsize=(10, 10), dpi=50)
 
@@ -116,15 +123,21 @@ def save_frame(i: int, data: list, neurons: list):
     plt.close()
 
 
-"""
-combines all images from images/, saves gif in output/
-deletes everything from images/ afterwards
-"""
 def make_animation():
-    filenames = os.listdir("images")
+    """
+    combines all images from images/, saves gif in output/
+    """
+    filenames = sorted(os.listdir("images"))
     with imageio.get_writer('output/anim.gif', mode='I') as writer:
         for filename in filenames:
-            path = 'images/' + filename
-            image = imageio.imread(path)
-            os.remove(path)
+            image = imageio.imread('images/' + filename)
             writer.append_data(image)
+
+
+def remove_old_images():
+    """
+    clear images/
+    """
+    filenames = os.listdir("images")
+    for file in filenames:
+        os.remove('images/' + file)
