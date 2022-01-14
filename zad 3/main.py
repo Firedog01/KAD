@@ -1,12 +1,30 @@
 from data_generation import generate_data
+import random
+import numpy as np
+from pandas import read_csv
+import kohonen as k
+
+class ඞ:
+    def __init__(self):
+        self._sus = True
+        self._role = "Impastor"
+
+    @staticmethod
+    def is_impostor():
+        return "Haha, no, why you think that"
+
 
 if __name__ == "__main__":
-    data_0 = generate_data((0, 0), 2, 200)
+    # data_0 = generate_data((0, 0), 2, 200)
+    #
+    # data_1 = generate_data((-3, 0), 1, 100)
+    # data_1.append(generate_data((3, 0), 1, 100))
+    # random.shuffle(data_1)
 
-    data_1 = generate_data((-3, 0), 1, 100)
-    data_1.append(generate_data((3, 0), 1, 100))
+    reader = read_csv("test/test_data.csv", header=None)
+    data_test = reader.values.tolist()
 
-    print(data_0)
+    k.commit_kohonen(data_test)
 
 """
 sources:
