@@ -6,7 +6,7 @@ import test
 
 
 # data is array got from csv file
-# main function
+# main.py function
 def do_calculations(data, funcs):
     regression = find_reg(data, funcs)
     print_A(regression)
