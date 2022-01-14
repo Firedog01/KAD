@@ -1,0 +1,53 @@
+ważne punkty:
+	program:
+		- generowanie danych
+		-
+
+
+
+Treść zadania Kwantyzacja przestrzeni za pomocą algorytmu K-średnich (maksymalna ocena 5)
+
+Algorytm k-średnich to iteracyjny algorytm, w którym początkowo w przestrzeni z danymi rozmieszczane jest K centrów.
+Następnie w każdej iteracji do każdego z centrów przyporządkowywane są dane wejściowe na podstawie ich odległości od
+centrów oraz aktualizowane jest położenie każdego centrum (średnia z przyporządkowanych do danego centrum) danych.
+Iteracje te powtarzane są tak długo, aż położenie centrów ulegnie stabilizacji. W celu uniknięcia lokalnych minimów
+operację można powtarzać losując wielokrotnie początkowe położenie centrów i za najlepsze rozwiązanie uznając to,
+które posiada najmniejszy błąd kwantyzacji.
+
+
+Należy uwzględnić możliwość pojawiania się martwych neuronów i zapobiegać takiej sytuacji (na przykład wykorzystując
+mechanizm zmęczenia neuronów). Ważną rolę odgrywa tu strategia doboru i zmiany współczynników w trakcie nauki.
+
+W celu wykonania zadania należy wygenerować 2 zbiory danych:
+	1. Punkty leżące na okręgu o średnicy 2 ze środkiem w punkcie (0, 0) (200 punktów)
+	2. Punkty leżące na jednym z dwóch okręgów o średnicy 1 ze środkami w punktach: (-3, 0) oraz (3, 0)
+	   (po 100 punktów na każdą figurę).
+
+Należy stworzyć aplikację pozwalającą w oparciu o te dane przeprowadzić proces uczenia samoorganizującej
+się sieci neuronowej. W tym celu należy zaimplementować i przeanalizować działanie algorytmu K-średnich. Stworzony
+program powinien umożliwiać wizualizację rozkładu punktów treningowych oraz wizualizację procesu nauki neuronów
+(animacja prezentująca przebieg nauki). W sprawozdaniu należy zwrócić uwagę na następujące rzeczy:
+	- Jak na jakość kwantyzacji wpływa sposób inicjalizacji wag neuronów?
+	- Jak na jakość kwantyzacji wpływa liczba neuronów i jak dobrać ich optymalną liczbę?
+	- Czy wszystkie centa biorą udział w kwantyzacji zbioru danych?
+
+
+Wyniki i wnioski z eksperymentów należy zaprezentować w jak najbardziej przejrzysty, a zarazem zwarty sposób
+(maksymalnie 4 strony dla każdej części). Sensowny sposób prezentacji wyników uwiarygadniający zamieszczone wnioski
+będzie jednym z głównych elementów podlegających ocenie. W szczególności sprawozdanie powinno zawierać następujące
+elementy:
+	- dwa wykresy (jeden dla przypadku z jedną figurą geometryczną, a drugi z dwiema rozdzielonymi figurami
+	geometrycznymi) pokazujące zmianę błędu kwantyzacji dla różnej liczby K centrów (od 2 do 20 co 2), liczba danych
+	treningowych powinna być równa 200
+
+	- dwie tabele (jedna dla przypadku z jedną figurą geometryczną, a druga z dwiema rozdzielonymi figurami
+	geometrycznymi) prezentujące uśrednione końcowe wartości błędu kwantyzacji, odchylenia standardowe tego błędu oraz
+	wartość minimalną, a także średnią liczbę nieaktywnych centrów oraz odchylenie standardowej tej liczby ze 100 prób
+	nauki (każda próba różni się od innych początkowymi wagami neuronów) dla różnych strategii inicjalizacji centrów,
+	należy przyjąć, że K=20, a liczba danych treningowych jest równa 200
+
+	- dwie pary rysunków dla K=2 oraz K=10 (jedna dla przypadku z jedną figurą geometryczną, a druga z dwiema
+	rozdzielonymi figurami geometrycznymi) uprezentujące w czytelny sposób jak zmieniało się położenie centrów na tle
+	danych treningowych (na przykład w postaci linii reprezentującej trajektorię zmian w trakcie nauki) oraz końcowe
+	przyporządkowanie danych treningowych do poszczególnych centrów (można skorzystać z diagramu Vornoia), liczba danych
+	treningowych powinna być równa 200
