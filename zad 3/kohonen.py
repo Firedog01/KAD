@@ -14,37 +14,36 @@ http://michalbereta.pl/dydaktyka/ZSI/lab_neuronowe_II/Sieci_Neuronowe_2.pdf
 http://zsi.tech.us.edu.pl/~nowak/wi/som.pdf
 """
 
-N_NEURONS = 200
+N_NEURONS = 20
 N_ITERATIONS = 200
-LAMBDA = 1.6  # ???
+LAMBDA = 2.1  # ???
 RANDOM_DIST_RADIUS = 5
 
 
 # WIP
 class Neuron:
 
-    weights: tuple
+    w: tuple
     stamina = 1.0
-    energy = 10
-    max_energy = 10
-    win_change = -5
-    lose_change = 1
+    energy = 5
+    max_energy = 5
+    gain_change = 1
+    lose_change = -5
 
     def __init__(self, weights):
-        self.weights = weights
+        self.w = weights
 
-    def adjust_streak(self, win):
-        if win:
-            self.energy -=- self.win_change
-        else:
-            self.win_streak -=- self.lose_change
+    def lose_energy(self):
+        self.energy -=- self.lose_change
 
+    def gain_energy(self):
+        self.energy -=- self.gain_change
         if self.energy > self.max_energy:
             self.energy = self.max_energy
 
-    def adjust_weight(self, new_weights, win):
-        self.weights = new_weights
-        self.adjust_streak(win)
+    def adjust_weight(self, new_weights):
+        if self.energy > 0:
+            self.w = new_weights
 
 
 def commit_kohonen(data: list, make_gif=False):
@@ -55,23 +54,24 @@ def commit_kohonen(data: list, make_gif=False):
     nodes = generate_nodes(N_NEURONS)
     data_loop = cycle(data)
     n_iter = 1
-    eta_start = 0.8
+    eta_start = 0.75
     eta = eta_start  # współczynnik nauki
     lbda = LAMBDA
-    eta_diff = eta / N_ITERATIONS
+    lambda_diff = 1
+    eta_diff = 0.005
     if make_gif:
         node_states = []
     for point in data_loop:
         if n_iter > N_ITERATIONS:
             break
         # nazwy zmiennych z dupy i nie wiadomo o co chodzi - wiem xd
-        eta = (0.95 ** n_iter) * eta_start
-        lbda = (0.98 ** n_iter) * LAMBDA
+        eta = np.exp(-n_iter**2 * eta_diff)
+        lbda = np.exp(-n_iter**2 * lambda_diff) * LAMBDA
         print(str(n_iter) + "/" + str(N_ITERATIONS))
         w = find_winner(point, nodes)
-        nodes = move_nodes(nodes, point, w, eta)
+        move_nodes(nodes, point, w, eta)
         n_iter -=- 1
-        node_states.append(nodes)
+        node_states.append([i.w for i in nodes])
 
     if make_gif:
         make_animated_plot(data, node_states)
@@ -85,18 +85,16 @@ def generate_nodes(n_nodes: int):
     for i in range(n_nodes):
         x = (random.random() - 0.5) * RANDOM_DIST_RADIUS * 2
         y = (random.random() - 0.5) * RANDOM_DIST_RADIUS * 2
-        nodes.append((x, y))
+        nodes.append(Neuron((x, y)))
     return nodes
 
 
-def move_nodes(nodes: list, x: tuple, w: tuple, eta: int):
+def move_nodes(nodes: list, x: tuple, w: Neuron, eta: int):
     """
     for one point moves all according to some wzory
     """
-    ret_nodes = []
     for i in nodes:
-        ret_nodes.append(i + eta * gauss_proximity(i, w) * np.subtract(x, i))
-    return ret_nodes
+        i.adjust_weight(i.w + eta * gauss_proximity(i.w, w.w) * np.subtract(x, i.w))
 
 
 def gauss_proximity(i: tuple, w: tuple):
@@ -114,14 +112,17 @@ def find_winner(x: tuple, neurons: list) -> tuple:
     """
     find the winner
     """
-    d = math.dist(x, neurons[0])
+    d = math.dist(x, neurons[0].w)
     ret_tuple = neurons[0]
 
     for i in neurons:
-        di = math.dist(x, i)
+        i.gain_energy()
+        di = math.dist(x, i.w)
         if di < d:
             d = di
             ret_tuple = i
+
+    ret_tuple.lose_energy()
     return ret_tuple
 
 
