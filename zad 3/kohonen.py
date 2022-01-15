@@ -19,7 +19,7 @@ LAMBDA = 4  # ???
 RANDOM_DIST_RADIUS = 5
 
 
-def commit_kohonen(data: list):
+def commit_kohonen(data: list, make_gif=False):
     """
     winner takes most
     """
@@ -30,20 +30,23 @@ def commit_kohonen(data: list):
     eta = 1  # współczynnik nauki
     lbda = LAMBDA
     eta_diff = eta / N_ITERATIONS
-    save_frame(0, data, nodes)
+    if make_gif:
+        save_frame(0, data, nodes)
     for point in data_loop:
         if n_iter > N_ITERATIONS:
             break
         print(str(n_iter) + "/" + str(N_ITERATIONS))
         w = find_winner(point, nodes)
         nodes = move_nodes(nodes, point, w, eta)
-        save_frame(n_iter, data, nodes)
+        if make_gif:
+            save_frame(n_iter, data, nodes)
         n_iter -=- 1
         eta /= 1.4
         # eta -= eta_diff
         lbda /= 1.7
 
-    make_animation()
+    if make_gif:
+        make_animation()
 
 
 def generate_nodes(n_nodes: int):
