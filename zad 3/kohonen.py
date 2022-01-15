@@ -2,6 +2,7 @@ from itertools import cycle
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import random
 import imageio
 import os
@@ -13,10 +14,37 @@ http://michalbereta.pl/dydaktyka/ZSI/lab_neuronowe_II/Sieci_Neuronowe_2.pdf
 http://zsi.tech.us.edu.pl/~nowak/wi/som.pdf
 """
 
-N_NEURONS = 5
-N_ITERATIONS = 50
-LAMBDA = 4  # ???
+N_NEURONS = 200
+N_ITERATIONS = 200
+LAMBDA = 1.6  # ???
 RANDOM_DIST_RADIUS = 5
+
+
+# WIP
+class Neuron:
+
+    weights: tuple
+    stamina = 1.0
+    energy = 10
+    max_energy = 10
+    win_change = -5
+    lose_change = 1
+
+    def __init__(self, weights):
+        self.weights = weights
+
+    def adjust_streak(self, win):
+        if win:
+            self.energy -=- self.win_change
+        else:
+            self.win_streak -=- self.lose_change
+
+        if self.energy > self.max_energy:
+            self.energy = self.max_energy
+
+    def adjust_weight(self, new_weights, win):
+        self.weights = new_weights
+        self.adjust_streak(win)
 
 
 def commit_kohonen(data: list, make_gif=False):
@@ -24,29 +52,29 @@ def commit_kohonen(data: list, make_gif=False):
     winner takes most
     """
     remove_old_images()
-    nodes = generate_nodes(5)
+    nodes = generate_nodes(N_NEURONS)
     data_loop = cycle(data)
     n_iter = 1
-    eta = 1  # współczynnik nauki
+    eta_start = 0.8
+    eta = eta_start  # współczynnik nauki
     lbda = LAMBDA
     eta_diff = eta / N_ITERATIONS
     if make_gif:
-        save_frame(0, data, nodes)
+        node_states = []
     for point in data_loop:
         if n_iter > N_ITERATIONS:
             break
+        # nazwy zmiennych z dupy i nie wiadomo o co chodzi - wiem xd
+        eta = (0.95 ** n_iter) * eta_start
+        lbda = (0.98 ** n_iter) * LAMBDA
         print(str(n_iter) + "/" + str(N_ITERATIONS))
         w = find_winner(point, nodes)
         nodes = move_nodes(nodes, point, w, eta)
-        if make_gif:
-            save_frame(n_iter, data, nodes)
         n_iter -=- 1
-        eta /= 1.4
-        # eta -= eta_diff
-        lbda /= 1.7
+        node_states.append(nodes)
 
     if make_gif:
-        make_animation()
+        make_animated_plot(data, node_states)
 
 
 def generate_nodes(n_nodes: int):
@@ -144,3 +172,33 @@ def remove_old_images():
     filenames = os.listdir("images")
     for file in filenames:
         os.remove('images/' + file)
+
+def make_animated_plot(data, node_states):
+    """
+    create animation using plt
+    """
+
+    fig, ax = plt.subplots()
+    ax.set(xlim=(-5, 5), ylim=(-5, 5))
+
+    ax.spines['left'].set_position(('data', 0))
+    ax.spines['bottom'].set_position(('data', 0))
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+
+    scatr = ax.scatter([], [], color='red', s=5, marker="o")
+    scatd = ax.scatter([], [], color='blue', s=2, marker=".")
+    scatd.set_offsets(data)
+
+    def animate(i):
+        scatr.set_offsets(node_states[i])
+        return scatr
+
+    anim = FuncAnimation(
+        fig, animate, interval=100, frames=N_ITERATIONS)
+
+    anim.save("./output/animation.mp4")
+    plt.draw()
+    plt.show()
+
+

@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # reader = read_csv("test/test_data.csv", header=None)
     # data_test = reader.values.tolist()
 
-    k.commit_kohonen(data_1)
+    k.commit_kohonen(data_1, make_gif=True)
 
 """
 sources:
