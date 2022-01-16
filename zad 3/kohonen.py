@@ -180,6 +180,7 @@ def make_animated_plot(data, node_states):
     """
 
     fig, ax = plt.subplots()
+    # fig = plt.figure(figsize=(10, 10), dpi=50)
     ax.set(xlim=(-5, 5), ylim=(-5, 5))
 
     ax.spines['left'].set_position(('data', 0))
@@ -198,7 +199,7 @@ def make_animated_plot(data, node_states):
     anim = FuncAnimation(
         fig, animate, interval=100, frames=N_ITERATIONS)
 
-    anim.save("./output/animation.mp4")
+    anim.save("./output/animation.gif")
     plt.draw()
     plt.show()
 
