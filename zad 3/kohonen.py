@@ -126,6 +126,17 @@ def find_winner(x: tuple, neurons: list) -> tuple:
     return ret_tuple
 
 
+def quantisation_error(data: [], neurons: []):
+    err = 0
+    for neuron in neurons:
+        sum_node = 0
+        for point in data:
+            sum_node = math.dist(point, neuron.w) ** 2
+        err += math.sqrt(sum_node)
+
+    err /= neurons.len()
+
+
 """ ------------------------ """
 
 
