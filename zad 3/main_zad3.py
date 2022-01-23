@@ -1,21 +1,31 @@
 from data_generation import generate_data
 import random
 import kohonen as k
+import numpy as np
+
+
+def get_data(ver: int):
+    if ver == 0:
+        return generate_data((0, 0), 2, 200)
+    if ver == 1:
+        data_0 = generate_data((-3, 0), 1, 100)
+        data_1 = generate_data((3, 0), 1, 100)
+        for row in data_1:
+            data_0.append(row)
+        random.shuffle(data_0)
+        return data_0
+
 
 if __name__ == "__main__":
-    # data = generate_data((0, 0), 2, 200)
-    #
-    data = generate_data((-3, 0), 1, 100)
-    data_1 = generate_data((3, 0), 1, 100)
-    for row in data_1:
-        data.append(row)
-    random.shuffle(data)
+    data = get_data(1)
 
-    n_nodes = 20
-    _lambda = 2.1
-    lambda_diff = 1
-    eta_diff = 0.005
-    k.commit_kohonen(data, n_nodes, _lambda, lambda_diff, eta_diff, make_gif=True)
+    def f_lambda(n_iter):
+        return np.exp(-n_iter ** 2 * 1) * 2.1
+
+    def f_eta(n_iter):
+        return np.exp(-n_iter ** 2 * 0.005)
+
+    k.commit_kohonen(data, 20, f_lambda, f_eta, make_gif=True)
 
 """
 sources:

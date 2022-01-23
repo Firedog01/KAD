@@ -14,8 +14,7 @@ http://zsi.tech.us.edu.pl/~nowak/wi/som.pdf
 """
 
 
-def commit_kohonen(data: list, n_neurons: int, _lambda: float, lbda_diff: float, eta_diff: float,
-                   rand_radius=5, make_gif=False):
+def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, make_gif=False):
     """
     winner takes most
     """
@@ -38,10 +37,10 @@ def commit_kohonen(data: list, n_neurons: int, _lambda: float, lbda_diff: float,
             break
 
         # jak bardzo neuron będzie się zbliżał do punktu
-        eta = np.exp(-n_iter ** 2 * eta_diff)
+        eta = f_eta(n_iter)
         # współczynnik do funkcji sąsiedztwa,
         # by promień sąsiedztwa zmniejszał się z biegiem iteracji
-        lbda = np.exp(-n_iter ** 2 * lbda_diff) * _lambda
+        lbda = f_lambda(n_iter)
 
         w = find_winner(point, nodes)
         max_dis = move_nodes(nodes, point, w, eta, lbda)
