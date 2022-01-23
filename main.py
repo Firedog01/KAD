@@ -102,26 +102,26 @@ if __name__ == "__main__":
 
 # print("data1 f(X) = a * X")
 # src.do_calculations(data1, model1)
-# print("data1 f(X) = a * X + b")
-# src.do_calculations(data1, model2)
-# print("data1 f(X) = a * X**2 + b * sin(X) + c")
-# src.do_calculations(data1, model3)
+print("data1 f(X) = a * X + b")
+src.do_calculations(data1, model2)
+print("data1 f(X) = a * X**2 + b * sin(X) + c")
+src.do_calculations(data1, model3)
 #
 # print("data2 f(X) = a * X")
 # src.do_calculations(data2, model1)
-# print("data2 f(X) = a * X + b")
-# src.do_calculations(data2, model2)
-# print("data2 f(X) = a * X**2 + b * sin(X) + c")
-# src.do_calculations(data2, model3)
+print("data2 f(X) = a * X + b")
+src.do_calculations(data2, model2)
+print("data2 f(X) = a * X**2 + b * sin(X) + c")
+src.do_calculations(data2, model3)
 
-# print("data3 f(X1, X2) = a * X1 + b * X2 + c")
-# src.do_calculations(data3, model4)
-# print("data3 f(X1, X2) = a * X1**2 + b * X1*X2 + c * X2**2 + d * X1 + e * X2 + f")
-# src.do_calculations(data3, model5)
-#
-# print("data4 f(X1, X2) = a * X1 + b * X2 + c")
-# src.do_calculations(data4, model4)
-# print("data4 f(X1, X2) = a * X1**2 + b * X1*X2 + c * X2**2 + d * X1 + e * X2 + f")
-# src.do_calculations(data4, model5)
+print("data3 f(X1, X2) = a * X1 + b * X2 + c")
+src.do_calculations(data3, model4)
+print("data3 f(X1, X2) = a * X1**2 + b * X1*X2 + c * X2**2 + d * X1 + e * X2 + f")
+src.do_calculations(data3, model5)
+
+print("data4 f(X1, X2) = a * X1 + b * X2 + c")
+src.do_calculations(data4, model4)
+print("data4 f(X1, X2) = a * X1**2 + b * X1*X2 + c * X2**2 + d * X1 + e * X2 + f")
+src.do_calculations(data4, model5)
 
 
