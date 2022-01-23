@@ -3,6 +3,16 @@ from matplotlib.animation import FuncAnimation
 import imageio
 import os
 
+
+def remove_old_images():
+    """
+    clear folder images/
+    """
+    filenames = os.listdir("images")
+    for file in filenames:
+        os.remove('images/' + file)
+
+
 def save_frame(i: int, data: list, neurons: list, r: float):
     """
     saves frame for current data and neurons with name i.png
@@ -21,7 +31,7 @@ def save_frame(i: int, data: list, neurons: list, r: float):
     for row in data:
         plt.scatter(row[0], row[1], color="blue", marker=".", s=10)
     for row in neurons:
-        plt.scatter(row[0], row[1], color="red", marker="o", s=25)
+        plt.scatter(row.w[0], row.w[1], color="red", marker="o", s=25)
     plt.xlim([-r, r])
     plt.ylim([-r, r])
     path = "images/{:04d}.png".format(i)
@@ -40,22 +50,13 @@ def make_animation():
             writer.append_data(image)
 
 
-def remove_old_images():
-    """
-    clear folder images/
-    """
-    filenames = os.listdir("images")
-    for file in filenames:
-        os.remove('images/' + file)
-
-
 def make_animated_plot(data, node_states, r: float):
     """
     create animation using plt
     """
     fig, ax = plt.subplots()
     # fig = plt.figure(figsize=(10, 10), dpi=50)
-    ax.set(xlim=(-5, 5), ylim=(-5, 5))
+    ax.set(xlim=(-r, r), ylim=(-r, r))
 
     ax.spines['left'].set_position(('data', 0))
     ax.spines['bottom'].set_position(('data', 0))
@@ -74,5 +75,3 @@ def make_animated_plot(data, node_states, r: float):
         fig, animate, interval=100, frames=len(node_states))
 
     anim.save("./output/animation.gif")
-    # plt.draw()
-    # plt.show()

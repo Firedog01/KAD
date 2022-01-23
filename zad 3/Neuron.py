@@ -2,8 +2,8 @@ import math
 
 class Neuron:
     w: tuple
-    energy = 6
-    max_energy = 6
+    energy = 4
+    max_energy = 4
     gain_change = 1
     lose_change = -2
 
