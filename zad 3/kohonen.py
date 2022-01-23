@@ -29,7 +29,8 @@ def commit_kohonen(data: list, make_gif=False):
 
     nodes = generate_nodes(N_NEURONS)
     data_loop = cycle(data)
-
+    print("Przypadkowe rozmieszczanie neuronów")
+    print(quantisation_err(data, nodes))
     eta_start = 0.9
     eta = eta_start  # współczynnik nauki
     lbda = LAMBDA
@@ -42,7 +43,7 @@ def commit_kohonen(data: list, make_gif=False):
     for point in data_loop:
         if n_iter > N_ITERATIONS:  # warunek ilości cykli
             break
-        if last_max_distance < 0.001:  # warunek przesunięcia
+        if last_max_distance < 0.00001:  # warunek przesunięcia
             break
 
         # nazwy zmiennych z dupy i nie wiadomo o co chodzi - wiem xd
@@ -56,6 +57,9 @@ def commit_kohonen(data: list, make_gif=False):
 
         node_states.append([i.w for i in nodes])
         n_iter -= - 1
+    print("proces nauki zakończony w", n_iter, "iteracjach")
+    print("błąd kwantyzacji pod koniec")
+    print(quantisation_err(data, nodes))
 
     if make_gif:
         make_animated_plot(data, node_states)
@@ -118,7 +122,7 @@ def find_winner(x: tuple, neurons: list) -> Neuron:
 def quantisation_err(data: list, neurons: list) -> float:
     err = 0
     for point in data:
-        min_dist = -math.inf
+        min_dist = math.inf
         for neuron in neurons:
             d = math.dist(point, neuron.w)
             if d < min_dist:
