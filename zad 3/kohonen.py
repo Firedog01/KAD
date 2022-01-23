@@ -6,6 +6,7 @@ from matplotlib.animation import FuncAnimation
 import random
 import imageio
 import os
+import Neuron
 
 """
 http://galaxy.agh.edu.pl/~vlsi/AI/koho_t/
@@ -20,58 +21,37 @@ LAMBDA = 2.1  # ???
 RANDOM_DIST_RADIUS = 5
 
 
-# WIP
-class Neuron:
-
-    w: tuple
-    stamina = 1.0
-    energy = 5
-    max_energy = 5
-    gain_change = 1
-    lose_change = -5
-
-    def __init__(self, weights):
-        self.w = weights
-
-    def lose_energy(self):
-        self.energy -=- self.lose_change
-
-    def gain_energy(self):
-        self.energy -=- self.gain_change
-        if self.energy > self.max_energy:
-            self.energy = self.max_energy
-
-    def adjust_weight(self, new_weights):
-        if self.energy > 0:
-            self.w = new_weights
-
-
 def commit_kohonen(data: list, make_gif=False):
     """
     winner takes most
     """
     remove_old_images()
+
     nodes = generate_nodes(N_NEURONS)
     data_loop = cycle(data)
-    n_iter = 1
+
     eta_start = 0.75
     eta = eta_start  # współczynnik nauki
     lbda = LAMBDA
     lambda_diff = 1
     eta_diff = 0.005
-    if make_gif:
-        node_states = []
+    node_states = []
+
+    n_iter = 1
     for point in data_loop:
-        if n_iter > N_ITERATIONS:
+        if n_iter > N_ITERATIONS:  # warunek ilości cykli
             break
+        # todo additional condition on exit
+
         # nazwy zmiennych z dupy i nie wiadomo o co chodzi - wiem xd
-        eta = np.exp(-n_iter**2 * eta_diff)
-        lbda = np.exp(-n_iter**2 * lambda_diff) * LAMBDA
-        print(str(n_iter) + "/" + str(N_ITERATIONS))
+        eta = np.exp(-n_iter ** 2 * eta_diff)
+        lbda = np.exp(-n_iter ** 2 * lambda_diff) * LAMBDA
+
         w = find_winner(point, nodes)
         move_nodes(nodes, point, w, eta)
-        n_iter -=- 1
+
         node_states.append([i.w for i in nodes])
+        n_iter -= - 1
 
     if make_gif:
         make_animated_plot(data, node_states)
@@ -79,13 +59,13 @@ def commit_kohonen(data: list, make_gif=False):
 
 def generate_nodes(n_nodes: int):
     """
-    generates given number of nodes
+    generates given number of nodes in a square
     """
     nodes = []
     for i in range(n_nodes):
         x = (random.random() - 0.5) * RANDOM_DIST_RADIUS * 2
         y = (random.random() - 0.5) * RANDOM_DIST_RADIUS * 2
-        nodes.append(Neuron((x, y)))
+        nodes.append(Neuron.Neuron((x, y)))
     return nodes
 
 
@@ -97,44 +77,45 @@ def move_nodes(nodes: list, x: tuple, w: Neuron, eta: int):
         i.adjust_weight(i.w + eta * gauss_proximity(i.w, w.w) * np.subtract(x, i.w))
 
 
-def gauss_proximity(i: tuple, w: tuple):
+def gauss_proximity(i: tuple, w: tuple) -> float:
     """
     G(i, x) = exp( -d^2(i, w) / (2 lambda^2) )
     """
     return np.exp(
-        -(math.dist(i, w)**2)
+        -(math.dist(i, w) ** 2)
         /
-        (2*LAMBDA**2)
+        (2 * LAMBDA ** 2)
     )
 
 
-def find_winner(x: tuple, neurons: list) -> tuple:
+def find_winner(x: tuple, neurons: list) -> Neuron:
     """
     find the winner
     """
     d = math.dist(x, neurons[0].w)
-    ret_tuple = neurons[0]
+    ret_neuron = neurons[0]
 
     for i in neurons:
         i.gain_energy()
         di = math.dist(x, i.w)
         if di < d:
             d = di
-            ret_tuple = i
+            ret_neuron = i
 
-    ret_tuple.lose_energy()
-    return ret_tuple
+    ret_neuron.lose_energy()
+    return ret_neuron
 
 
-def quantisation_error(data: [], neurons: []):
+def quantisation_err(data: list, neurons: list) -> float:
     err = 0
-    for neuron in neurons:
-        sum_node = 0
-        for point in data:
-            sum_node = math.dist(point, neuron.w) ** 2
-        err += math.sqrt(sum_node)
-
-    err /= neurons.len()
+    for point in data:
+        min_dist = -math.inf
+        for neuron in neurons:
+            d = math.dist(point, neuron.w)
+            if d < min_dist:
+                min_dist = d
+        err += min_dist
+    return err / len(data)
 
 
 """ ------------------------ """
@@ -185,6 +166,7 @@ def remove_old_images():
     for file in filenames:
         os.remove('images/' + file)
 
+
 def make_animated_plot(data, node_states):
     """
     create animation using plt
@@ -213,5 +195,3 @@ def make_animated_plot(data, node_states):
     anim.save("./output/animation.gif")
     plt.draw()
     plt.show()
-
-
