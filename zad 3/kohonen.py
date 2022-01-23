@@ -25,12 +25,12 @@ def commit_kohonen(data: list, make_gif=False):
     """
     winner takes most
     """
-    remove_old_images()
+    # remove_old_images()
 
     nodes = generate_nodes(N_NEURONS)
     data_loop = cycle(data)
 
-    eta_start = 0.75
+    eta_start = 0.9
     eta = eta_start  # współczynnik nauki
     lbda = LAMBDA
     lambda_diff = 1
@@ -38,17 +38,21 @@ def commit_kohonen(data: list, make_gif=False):
     node_states = []
 
     n_iter = 1
+    last_max_distance = math.inf
     for point in data_loop:
         if n_iter > N_ITERATIONS:  # warunek ilości cykli
             break
-        # todo additional condition on exit
+        if last_max_distance < 0.001:  # warunek przesunięcia
+            break
 
         # nazwy zmiennych z dupy i nie wiadomo o co chodzi - wiem xd
         eta = np.exp(-n_iter ** 2 * eta_diff)
         lbda = np.exp(-n_iter ** 2 * lambda_diff) * LAMBDA
 
         w = find_winner(point, nodes)
-        move_nodes(nodes, point, w, eta)
+        max_dis = move_nodes(nodes, point, w, eta)
+        if max_dis < last_max_distance:
+            last_max_distance = max_dis
 
         node_states.append([i.w for i in nodes])
         n_iter -= - 1
@@ -71,10 +75,15 @@ def generate_nodes(n_nodes: int):
 
 def move_nodes(nodes: list, x: tuple, w: Neuron, eta: int):
     """
-    for one point moves all according to some wzory
+    moves winner node colser to point x.
+    Additionally, according to Gauss proximity function moves neighbours to same point
     """
-    for i in nodes:
-        i.adjust_weight(i.w + eta * gauss_proximity(i.w, w.w) * np.subtract(x, i.w))
+    max_dis = 0
+    for node in nodes:
+        dis = node.adjust_weight(node.w + eta * gauss_proximity(node.w, w.w) * np.subtract(x, node.w))
+        if dis > max_dis:
+            max_dis = dis
+    return max_dis
 
 
 def gauss_proximity(i: tuple, w: tuple) -> float:
@@ -160,7 +169,7 @@ def make_animation():
 
 def remove_old_images():
     """
-    clear images/
+    clear folder images/
     """
     filenames = os.listdir("images")
     for file in filenames:
@@ -171,7 +180,6 @@ def make_animated_plot(data, node_states):
     """
     create animation using plt
     """
-
     fig, ax = plt.subplots()
     # fig = plt.figure(figsize=(10, 10), dpi=50)
     ax.set(xlim=(-5, 5), ylim=(-5, 5))
@@ -190,8 +198,8 @@ def make_animated_plot(data, node_states):
         return scatr
 
     anim = FuncAnimation(
-        fig, animate, interval=100, frames=N_ITERATIONS)
+        fig, animate, interval=100, frames=len(node_states))
 
     anim.save("./output/animation.gif")
-    plt.draw()
-    plt.show()
+    # plt.draw()
+    # plt.show()
