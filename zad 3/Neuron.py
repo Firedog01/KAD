@@ -1,9 +1,8 @@
 # WIP
 class Neuron:
     w: tuple
-    stamina = 1.0
-    energy = 5
-    max_energy = 5
+    energy = 6
+    max_energy = 6
     gain_change = 1
     lose_change = -5
 

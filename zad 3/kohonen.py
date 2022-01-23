@@ -25,12 +25,12 @@ def commit_kohonen(data: list, make_gif=False):
     """
     winner takes most
     """
-    remove_old_images()
+    # remove_old_images()
 
     nodes = generate_nodes(N_NEURONS)
     data_loop = cycle(data)
 
-    eta_start = 0.75
+    eta_start = 0.9
     eta = eta_start  # współczynnik nauki
     lbda = LAMBDA
     lambda_diff = 1
@@ -38,17 +38,21 @@ def commit_kohonen(data: list, make_gif=False):
     node_states = []
 
     n_iter = 1
+    last_max_distance = math.inf
     for point in data_loop:
         if n_iter > N_ITERATIONS:  # warunek ilości cykli
             break
-        # todo additional condition on exit
+        if last_max_distance < 0.001:  # warunek przesunięcia
+            break
 
         # nazwy zmiennych z dupy i nie wiadomo o co chodzi - wiem xd
         eta = np.exp(-n_iter ** 2 * eta_diff)
         lbda = np.exp(-n_iter ** 2 * lambda_diff) * LAMBDA
 
         w = find_winner(point, nodes)
-        move_nodes(nodes, point, w, eta)
+        max_dis = move_nodes(nodes, point, w, eta)
+        if max_dis < last_max_distance:
+            last_max_distance = max_dis
 
         node_states.append([i.w for i in nodes])
         n_iter -= - 1
