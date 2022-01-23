@@ -75,10 +75,15 @@ def generate_nodes(n_nodes: int):
 
 def move_nodes(nodes: list, x: tuple, w: Neuron, eta: int):
     """
-    for one point moves all according to some wzory
+    moves winner node colser to point x.
+    Additionally, according to Gauss proximity function moves neighbours to same point
     """
-    for i in nodes:
-        i.adjust_weight(i.w + eta * gauss_proximity(i.w, w.w) * np.subtract(x, i.w))
+    max_dis = 0
+    for node in nodes:
+        dis = node.adjust_weight(node.w + eta * gauss_proximity(node.w, w.w) * np.subtract(x, node.w))
+        if dis > max_dis:
+            max_dis = dis
+    return max_dis
 
 
 def gauss_proximity(i: tuple, w: tuple) -> float:
@@ -164,7 +169,7 @@ def make_animation():
 
 def remove_old_images():
     """
-    clear images/
+    clear folder images/
     """
     filenames = os.listdir("images")
     for file in filenames:
@@ -175,7 +180,6 @@ def make_animated_plot(data, node_states):
     """
     create animation using plt
     """
-
     fig, ax = plt.subplots()
     # fig = plt.figure(figsize=(10, 10), dpi=50)
     ax.set(xlim=(-5, 5), ylim=(-5, 5))
@@ -194,8 +198,8 @@ def make_animated_plot(data, node_states):
         return scatr
 
     anim = FuncAnimation(
-        fig, animate, interval=100, frames=N_ITERATIONS)
+        fig, animate, interval=100, frames=len(node_states))
 
     anim.save("./output/animation.gif")
-    plt.draw()
-    plt.show()
+    # plt.draw()
+    # plt.show()

@@ -3,7 +3,7 @@ import random
 import kohonen as k
 
 if __name__ == "__main__":
-    # data_0 = generate_data((0, 0), 2, 200)
+    # data = generate_data((0, 0), 2, 200)
     #
     data = generate_data((-3, 0), 1, 100)
     data_1 = generate_data((3, 0), 1, 100)

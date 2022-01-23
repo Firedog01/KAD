@@ -1,10 +1,11 @@
-# WIP
+import math
+
 class Neuron:
     w: tuple
     energy = 6
     max_energy = 6
     gain_change = 1
-    lose_change = -5
+    lose_change = -2
 
     def __init__(self, weights):
         self.w = weights
@@ -19,4 +20,7 @@ class Neuron:
 
     def adjust_weight(self, new_weights):
         if self.energy > 0:
+            d = math.dist(self.w, new_weights)
             self.w = new_weights
+            return d
+        return 0
