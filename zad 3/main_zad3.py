@@ -11,7 +11,11 @@ if __name__ == "__main__":
         data.append(row)
     random.shuffle(data)
 
-    k.commit_kohonen(data, make_gif=True)
+    n_nodes = 20
+    _lambda = 2.1
+    lambda_diff = 1
+    eta_diff = 0.005
+    k.commit_kohonen(data, n_nodes, _lambda, lambda_diff, eta_diff, make_gif=True)
 
 """
 sources:

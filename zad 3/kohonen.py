@@ -1,12 +1,10 @@
 from itertools import cycle
 import numpy as np
 import math
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+
 import random
-import imageio
-import os
 import Neuron
+from make_gif import *
 
 """
 http://galaxy.agh.edu.pl/~vlsi/AI/koho_t/
@@ -15,27 +13,20 @@ http://michalbereta.pl/dydaktyka/ZSI/lab_neuronowe_II/Sieci_Neuronowe_2.pdf
 http://zsi.tech.us.edu.pl/~nowak/wi/som.pdf
 """
 
-N_NEURONS = 20
-N_ITERATIONS = 200
-LAMBDA = 2.1  # ???
-RANDOM_DIST_RADIUS = 5
 
-
-def commit_kohonen(data: list, make_gif=False):
+def commit_kohonen(data: list, n_neurons: int, _lambda: float, lbda_diff: float, eta_diff: float,
+                   rand_radius=5, make_gif=False):
     """
     winner takes most
     """
-    # remove_old_images()
+    N_ITERATIONS = 200
 
-    nodes = generate_nodes(N_NEURONS)
+    nodes = generate_nodes(n_neurons, rand_radius)
     data_loop = cycle(data)
     print("Przypadkowe rozmieszczanie neuronów")
-    print(quantisation_err(data, nodes))
-    eta_start = 0.9
-    eta = eta_start  # współczynnik nauki
-    lbda = LAMBDA
-    lambda_diff = 1
-    eta_diff = 0.005
+    print("błąd kwantyzacji na początku", quantisation_err(data, nodes))
+    print()
+
     node_states = []
 
     n_iter = 1
@@ -46,59 +37,37 @@ def commit_kohonen(data: list, make_gif=False):
         if last_max_distance < 0.00001:  # warunek przesunięcia
             break
 
-        # nazwy zmiennych z dupy i nie wiadomo o co chodzi - wiem xd
+        # jak bardzo neuron będzie się zbliżał do punktu
         eta = np.exp(-n_iter ** 2 * eta_diff)
-        lbda = np.exp(-n_iter ** 2 * lambda_diff) * LAMBDA
+        # współczynnik do funkcji sąsiedztwa,
+        # by promień sąsiedztwa zmniejszał się z biegiem iteracji
+        lbda = np.exp(-n_iter ** 2 * lbda_diff) * _lambda
 
         w = find_winner(point, nodes)
-        max_dis = move_nodes(nodes, point, w, eta)
+        max_dis = move_nodes(nodes, point, w, eta, lbda)
         if max_dis < last_max_distance:
             last_max_distance = max_dis
 
         node_states.append([i.w for i in nodes])
         n_iter -= - 1
+
     print("proces nauki zakończony w", n_iter, "iteracjach")
-    print("błąd kwantyzacji pod koniec")
-    print(quantisation_err(data, nodes))
+    print("błąd kwantyzacji pod koniec", quantisation_err(data, nodes))
 
     if make_gif:
-        make_animated_plot(data, node_states)
+        make_animated_plot(data, node_states, rand_radius)
 
 
-def generate_nodes(n_nodes: int):
+def generate_nodes(n_nodes: int, r: float):
     """
     generates given number of nodes in a square
     """
     nodes = []
     for i in range(n_nodes):
-        x = (random.random() - 0.5) * RANDOM_DIST_RADIUS * 2
-        y = (random.random() - 0.5) * RANDOM_DIST_RADIUS * 2
+        x = (random.random() - 0.5) * 2 * r
+        y = (random.random() - 0.5) * 2 * r
         nodes.append(Neuron.Neuron((x, y)))
     return nodes
-
-
-def move_nodes(nodes: list, x: tuple, w: Neuron, eta: int):
-    """
-    moves winner node colser to point x.
-    Additionally, according to Gauss proximity function moves neighbours to same point
-    """
-    max_dis = 0
-    for node in nodes:
-        dis = node.adjust_weight(node.w + eta * gauss_proximity(node.w, w.w) * np.subtract(x, node.w))
-        if dis > max_dis:
-            max_dis = dis
-    return max_dis
-
-
-def gauss_proximity(i: tuple, w: tuple) -> float:
-    """
-    G(i, x) = exp( -d^2(i, w) / (2 lambda^2) )
-    """
-    return np.exp(
-        -(math.dist(i, w) ** 2)
-        /
-        (2 * LAMBDA ** 2)
-    )
 
 
 def find_winner(x: tuple, neurons: list) -> Neuron:
@@ -119,6 +88,30 @@ def find_winner(x: tuple, neurons: list) -> Neuron:
     return ret_neuron
 
 
+def move_nodes(nodes: list, x: tuple, w: Neuron, eta: float, lbda: float):
+    """
+    moves winner node colser to point x.
+    Additionally, according to Gauss proximity function moves neighbours to same point
+    """
+    max_dis = 0
+    for node in nodes:
+        dis = node.adjust_weight(node.w + eta * gauss_proximity(node.w, w.w, lbda) * np.subtract(x, node.w))
+        if dis > max_dis:
+            max_dis = dis
+    return max_dis
+
+
+def gauss_proximity(i: tuple, w: tuple, lbda: float) -> float:
+    """
+    G(i, x) = exp( -d^2(i, w) / (2 lambda^2) )
+    """
+    return np.exp(
+        -(math.dist(i, w) ** 2)
+        /
+        (2 * lbda ** 2)
+    )
+
+
 def quantisation_err(data: list, neurons: list) -> float:
     err = 0
     for point in data:
@@ -130,80 +123,3 @@ def quantisation_err(data: list, neurons: list) -> float:
         err += min_dist
     return err / len(data)
 
-
-""" ------------------------ """
-
-
-def save_frame(i: int, data: list, neurons: list):
-    """
-    saves frame for current data and neurons with name i.png
-    """
-    # filesize 500x500
-    fig = plt.figure(figsize=(10, 10), dpi=50)
-
-    # move axis
-    ax = fig.add_subplot(1, 1, 1)
-    ax.spines['left'].set_position(('data', 0))
-    ax.spines['bottom'].set_position(('data', 0))
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-
-    plt.tight_layout(pad=0.2)
-    for row in data:
-        plt.scatter(row[0], row[1], color="blue", marker=".", s=10)
-    for row in neurons:
-        plt.scatter(row[0], row[1], color="red", marker="o", s=25)
-    plt.xlim([-RANDOM_DIST_RADIUS, RANDOM_DIST_RADIUS])
-    plt.ylim([-RANDOM_DIST_RADIUS, RANDOM_DIST_RADIUS])
-    path = "images/{:04d}.png".format(i)
-    plt.savefig(path)
-    plt.close()
-
-
-def make_animation():
-    """
-    combines all images from images/, saves gif in output/
-    """
-    filenames = sorted(os.listdir("images"))
-    with imageio.get_writer('output/anim.gif', mode='I') as writer:
-        for filename in filenames:
-            image = imageio.imread('images/' + filename)
-            writer.append_data(image)
-
-
-def remove_old_images():
-    """
-    clear folder images/
-    """
-    filenames = os.listdir("images")
-    for file in filenames:
-        os.remove('images/' + file)
-
-
-def make_animated_plot(data, node_states):
-    """
-    create animation using plt
-    """
-    fig, ax = plt.subplots()
-    # fig = plt.figure(figsize=(10, 10), dpi=50)
-    ax.set(xlim=(-5, 5), ylim=(-5, 5))
-
-    ax.spines['left'].set_position(('data', 0))
-    ax.spines['bottom'].set_position(('data', 0))
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-
-    scatr = ax.scatter([], [], color='red', s=5, marker="o")
-    scatd = ax.scatter([], [], color='blue', s=2, marker=".")
-    scatd.set_offsets(data)
-
-    def animate(i):
-        scatr.set_offsets(node_states[i])
-        return scatr
-
-    anim = FuncAnimation(
-        fig, animate, interval=100, frames=len(node_states))
-
-    anim.save("./output/animation.gif")
-    # plt.draw()
-    # plt.show()
