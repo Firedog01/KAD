@@ -50,26 +50,10 @@ def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, m
 
     save_frame(0, data, neurons, rand_radius)
 
-    is_best_node = [0] * n_neurons
-    for point in data:
-        id_best = -1
-        min_dist = math.inf
-        for idx, neuron in enumerate(neurons):
-            d = math.dist(point, neuron.w)
-            if d <= min_dist:
-                id_best = idx
-                min_dist = d
-        is_best_node[id_best] = 1
-
-    print("pozycje martwych neuronów:")
-    for idx, is_best in enumerate(is_best_node):
-        if is_best == 0:
-            print(neurons[idx].w)
-
     if make_gif:
         make_animated_plot(data, node_states, rand_radius)
 
-    return q_err, is_best_node.count(0)
+    return q_err, neurons
 
 
 def generate_nodes(n_nodes: int, r: float):
