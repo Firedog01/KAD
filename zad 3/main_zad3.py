@@ -53,7 +53,9 @@ def test_neuron_count():
 def test_learning_params(n_iterations):
     q_errs = []
     dead_neuron_arr = []
+    print("=" * n_iterations)
     for i in range(n_iterations):
+        print("-", end='')
         q_err, neurons = commit_kohonen(data, 20, f_lambda, f_eta)
         q_errs.append(q_err)
         dead_neuron_arr.append(count_deads(neurons))
@@ -96,11 +98,12 @@ if __name__ == "__main__":
     def f_eta(i):
         return 0.5 - 0.0020 * i
 
-    test_neuron_count()
-    # q_err1, neurons1 = commit_kohonen(data, 20, f_lambda, f_eta, make_gif=True)
 
+    # q_err1, neurons1 = commit_kohonen(data, 20, f_lambda, f_eta, make_gif=True)
     # print(q_err1, count_deads(neurons1))
-    # test_learning_params(100)
+
+    # test_neuron_count()
+    test_learning_params(100)
 
 
 """

@@ -22,8 +22,8 @@ def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, m
 
     neurons = generate_nodes(n_neurons, rand_radius)
     data_loop = cycle(data)
-    print("Przypadkowe rozmieszczanie neuronów")
-    print("błąd kwantyzacji na początku", quantisation_err(data, neurons))
+    # print("Przypadkowe rozmieszczanie neuronów")
+    # print("błąd kwantyzacji na początku", quantisation_err(data, neurons))
 
     node_states = []  # to make an animation
     n_iter = 1
@@ -46,7 +46,7 @@ def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, m
         n_iter -= - 1
 
     q_err = quantisation_err(data, neurons)
-    print("proces nauki zakończony w", n_iter - 1, "iteracjach")
+    # print("proces nauki zakończony w", n_iter - 1, "iteracjach")
 
     save_frame(0, data, neurons, rand_radius)
 
