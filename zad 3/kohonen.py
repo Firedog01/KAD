@@ -14,7 +14,7 @@ http://zsi.tech.us.edu.pl/~nowak/wi/som.pdf
 """
 
 
-def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, make_gif=False):
+def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, prevent_dead=True, make_gif=False, graph_size=5):
     """
     winner takes most
     """
@@ -37,7 +37,7 @@ def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, m
         eta = f_eta(n_iter)
         lbda = f_lambda(n_iter)
 
-        w = find_winner(point, neurons)
+        w = find_winner(point, neurons, prevent_dead)
         max_dis = move_nodes(neurons, point, w, eta, lbda)
         if max_dis < last_max_distance:
             last_max_distance = max_dis
@@ -48,10 +48,10 @@ def commit_kohonen(data: list, n_neurons: int, f_lambda, f_eta, rand_radius=5, m
     q_err = quantisation_err(data, neurons)
     # print("proces nauki zakończony w", n_iter - 1, "iteracjach")
 
-    save_frame(0, data, neurons, rand_radius)
+    save_frame(0, data, neurons, graph_size)
 
     if make_gif:
-        make_animated_plot(data, node_states, rand_radius)
+        make_animated_plot(data, node_states, graph_size)
 
     return q_err, neurons
 
@@ -68,7 +68,7 @@ def generate_nodes(n_nodes: int, r: float):
     return nodes
 
 
-def find_winner(x: tuple, neurons: list) -> Neuron:
+def find_winner(x: tuple, neurons: list, prevent_dead) -> Neuron:
     """
     find the winner
     """
@@ -76,13 +76,15 @@ def find_winner(x: tuple, neurons: list) -> Neuron:
     ret_neuron = neurons[0]
 
     for i in neurons:
-        i.gain_energy()
+        if prevent_dead:
+            i.gain_energy()
         di = math.dist(x, i.w)
         if di < d:
             d = di
             ret_neuron = i
 
-    ret_neuron.lose_energy()
+    if prevent_dead:
+        ret_neuron.lose_energy()
     return ret_neuron
 
 
