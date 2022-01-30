@@ -48,6 +48,8 @@ def test_neuron_count():
         values.append(str(n_neurons))
     plt.bar(values, q_errs)
     plt.show()
+    path = "output/hist.png"
+    plt.savefig(path)
 
 
 def test_learning_params(n_iterations):
@@ -95,21 +97,21 @@ if __name__ == "__main__":
     """
     ver = 0
     data = get_data()
-    rand_radius = 3
+    rand_radius = 5
     prevent_dead = False
 
     def f_lambda(i):
-        return 12 / i
+        return 15/i
 
     def f_eta(i):
         return 0.5
 
 
-    q_err1, neurons1 = commit_kohonen(data, 20, f_lambda, f_eta, rand_radius, prevent_dead=prevent_dead, make_gif=True)
-    print(q_err1, count_deads(neurons1))
+    # q_err1, neurons1 = commit_kohonen(data, 20, f_lambda, f_eta, rand_radius, prevent_dead=prevent_dead, make_gif=False)
+    # print(q_err1, count_deads(neurons1))
 
-    # test_neuron_count()
-    test_learning_params(100)
+    test_neuron_count()
+    # test_learning_params(100)
 
 
 """

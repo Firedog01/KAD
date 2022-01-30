@@ -55,7 +55,6 @@ def make_animated_plot(data, node_states, r: float):
     create animation using plt
     """
     fig, ax = plt.subplots()
-    # fig = plt.figure(figsize=(10, 10), dpi=50)
     ax.set(xlim=(-r, r), ylim=(-r, r))
 
     ax.spines['left'].set_position(('data', 0))
